@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <title>Psychology Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app-container">
+        <div id="home-screen" class="screen active">
+            <h1 style="color:#2196F3; font-size: 35px; margin-bottom: 30px; text-align: center;">Psychology<br>Master</h1>
+            <div id="lectures-list" style="width: 100%; max-width: 500px;"></div>
+        </div>
+
+        <div id="revision-screen" class="screen">
+            <div class="rev-header">
+                <h2 id="rev-title" style="margin:0; color:#2196F3; font-size: 24px;">المراجعة</h2>
+                <span class="close-btn" onclick="goHome()">✕</span>
+            </div>
+            <div id="mindmap-board" class="mindmap-board"></div>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <span class="close-btn" onclick="goHome()">✕</span>
+                <div class="progress-bar-bg"><div id="bar" class="progress-bar-fill"></div></div>
+                <div id="counter" style="font-weight: 800; min-width: 60px; font-size: 18px; direction: ltr; text-align: center;">0/0</div>
+            </div>
+            <div id="round-info">الجولة (1)</div>
+            <div class="question-box">
+                <div id="q-txt">...</div>
+            </div>
+            <div class="options-container" id="opt-box"></div>
+            <div class="footer">
+                <button id="prev-btn" class="nav-btn prev" onclick="goPrev()">السابق</button>
+                <button id="next-btn" class="nav-btn next" onclick="goNext()">التالي</button>
+            </div>
+        </div>
+
+        <div id="win-overlay" class="overlay">
+            <div class="dialog">
+                <h1 style="color: var(--btn-green); font-size: 45px; margin: 0 0 15px 0;">بطل! 🎉</h1>
+                <p id="win-msg" style="font-size: 22px; font-weight: 800; color: #333; margin-bottom: 30px;">تم إنهاء الأسئلة بنجاح.</p>
+                <button id="home-btn" class="btn-main" style="width: 100%; box-shadow: 0 6px 0 var(--btn-green-dark);" onclick="goHome(); document.getElementById('win-overlay').style.display='none';">الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="lang-fab" onclick="toggleLanguage()">EN</button>
+
+    <script src="js/data_lec1.js"></script>
+    <script src="js/data_lec2.js"></script>
+    <script src="js/data_lec3.js"></script>
+    <script src="js/data_lec4.js"></script>
+    <script src="js/data_lec5.js"></script>
+    <script src="js/data_lec6.js"></script>
+    <script src="js/data_lec7.js"></script>
+    <script src="js/data_lec8.js"></script>
+    <script src="js/allLecturesData.js"></script>
+    <script src="js/allLecturesData2.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</body>
+</html>
