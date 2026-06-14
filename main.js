@@ -1,14 +1,12 @@
-let currentLang = 'en'; // اللغة الافتراضية
-let currentLecData = null; // المحاضرة المفتوحة حالياً
-
+let currentLang = 'en'; 
+let currentLecData = null; 
 
 function formatText(str) {
     if(!str) return '';
     return str.replace(/\*(.*?)\*/g, '<span class="highlight">$1</span>');
 }
 
-
-// --- إعدادات اللغة والزر العائم ---
+// --- إعدادات اللغة ---
 const uiStrings = {
     ar: { revBtn: "مراجعة", quizBtn: "أسئلة", revTitle: "المراجعة", round: "الجولة", prev: "السابق", next: "التالي", finish: "إنهاء الجولة", winMsg: "تم إنهاء الأسئلة بنجاح.", home: "الرئيسية" },
     en: { revBtn: "Revision", quizBtn: "Quiz", revTitle: "Mind Map", round: "Round", prev: "Prev", next: "Next", finish: "Finish Round", winMsg: "All questions answered successfully.", home: "Home" }
@@ -19,7 +17,6 @@ function toggleLanguage() {
     document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.getElementById('lang-fab').innerText = currentLang === 'ar' ? 'EN' : 'AR';
     
-    // إعادة رسم الشاشة المفتوحة حالياً لتطبيق الترجمة
     if (document.getElementById('home-screen').classList.contains('active')) renderHome();
     else if (document.getElementById('revision-screen').classList.contains('active')) renderRevision();
     else if (document.getElementById('quiz-screen').classList.contains('active')) {
@@ -53,7 +50,7 @@ function goHome() {
     renderHome();
 }
 
-// --- شاشة المراجعة ---
+// --- شاشة المراجعة المعدلة لدعم الرسوم والأنواع الجديدة ---
 function openRevision(lecId) {
     currentLecData = allLectures.find(l => l.id === lecId);
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -67,15 +64,75 @@ function renderRevision() {
     const board = document.getElementById('mindmap-board');
     board.innerHTML = '';
 
-    currentLecData.revision.forEach(node => {
-        let branchesHTML = '';
-        node.branches.forEach(b => {
-            branchesHTML += `
-                <div class="branch ${b.type}">
-                    <div class="node-title">${b.nodeTitle[currentLang]}</div>
-                    <div class="node-content">${formatText(b.content[currentLang])}</div>
+    let chartsToDraw = []; // مصفوفة لحفظ الرسوم البيانية لتشغيلها بعد بناء الواجهة
 
-                </div>`;
+    currentLecData.revision.forEach((node, nodeIndex) => {
+        let branchesHTML = '';
+        node.branches.forEach((b, index) => {
+            
+            // 1. صندوق القوانين والمعلومات
+            if (b.type === 'info') {
+                branchesHTML += `
+                    <div class="info-box">
+                        <div class="node-title">${b.nodeTitle[currentLang]}</div>
+                        <div class="node-content">${formatText(b.content[currentLang])}</div>
+                    </div>`;
+            } 
+            // 2. شبكة المقارنة
+            else if (b.type === 'compare') {
+                branchesHTML += `
+                    <div class="compare-grid">
+                        <div class="compare-item">
+                            <div class="compare-title">${b.val1Title[currentLang]}</div>
+                            <div class="node-content">${formatText(b.val1[currentLang])}</div>
+                        </div>
+                        <div class="compare-item">
+                            <div class="compare-title">${b.val2Title[currentLang]}</div>
+                            <div class="node-content">${formatText(b.val2[currentLang])}</div>
+                        </div>
+                    </div>`;
+            } 
+// 3. البطاقة القلابة (Flashcard)
+            else if (b.type === 'flip') {
+                branchesHTML += `
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div style="width: 100%; text-align: center;">${b.nodeTitle[currentLang]}</div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div style="width: 100%; text-align: start; direction: ${currentLang === 'ar' ? 'rtl' : 'ltr'};">
+                                    ${formatText(b.content[currentLang])}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            // 4. الرسوم البيانية التفاعلية (Plotly)
+            else if (b.type === 'chart') {
+                let chartId = `chart-${Math.floor(Math.random() * 1000000)}-${nodeIndex}-${index}`;
+                branchesHTML += `
+                    <div class="chart-container">
+                        <div class="node-title" style="text-align:center; margin-bottom:10px; font-weight:800;">${b.nodeTitle[currentLang]}</div>
+                        <div id="${chartId}" style="width:100%; height:300px;"></div>
+                    </div>`;
+                chartsToDraw.push({ id: chartId, data: b.chartData, layout: b.chartLayout });
+            } 
+            // 5. الجداول (متجاوبة للموبايل)
+            else if (b.type === 'table') {
+                branchesHTML += `
+                    <div class="table-responsive">
+                        ${b.content[currentLang]}
+                    </div>`;
+            }
+            // 6. الشكل العادي الافتراضي (origin, key, other)
+            else {
+                branchesHTML += `
+                    <div class="branch ${b.type || 'other'}">
+                        <div class="node-title">${b.nodeTitle[currentLang]}</div>
+                        <div class="node-content">${formatText(b.content[currentLang])}</div>
+                    </div>`;
+            }
         });
 
         board.innerHTML += `
@@ -84,8 +141,18 @@ function renderRevision() {
                 <div class="branch-grid">${branchesHTML}</div>
             </div>`;
     });
-    if (window.MathJax) { MathJax.typesetPromise(); }
 
+    // رسم الرسوم البيانية بعد ظهور العناصر في الصفحة
+    setTimeout(() => {
+        chartsToDraw.forEach(chart => {
+            let layout = chart.layout || {};
+            layout.margin = { l: 40, r: 20, b: 40, t: 20 }; // تصغير الهوامش للموبايل
+            layout.autosize = true;
+            Plotly.newPlot(chart.id, chart.data, layout, {responsive: true, displayModeBar: false});
+        });
+    }, 100);
+
+    if (window.MathJax) { MathJax.typesetPromise(); }
 }
 
 // --- شاشة الكويز ---
@@ -99,7 +166,6 @@ function initQuiz(lecId) {
         alert("لا توجد أسئلة لهذه المحاضرة بعد.");
         return;
     }
-    
     currentRound = 1;
     prepareRound([...currentLecData.quiz]);
     
@@ -132,7 +198,6 @@ function loadQuestion() {
     
     document.getElementById('counter').innerText = `${currentIndex + 1} / ${total}`;
     document.getElementById('bar').style.width = `${((currentIndex + 1) / total) * 100}%`;
-    
     document.getElementById('q-txt').innerHTML = formatText(qData.q[currentLang]);
     
     const box = document.getElementById('opt-box');
@@ -155,25 +220,21 @@ function loadQuestion() {
     });
 
     document.getElementById('prev-btn').disabled = (currentIndex === 0);
-    
     const nextBtn = document.getElementById('next-btn');
     nextBtn.disabled = (qData.userAnswerIndex === null);
     nextBtn.innerText = (currentIndex === total - 1 && qData.userAnswerIndex !== null) 
                         ? uiStrings[currentLang].finish : uiStrings[currentLang].next;
+    
     if (window.MathJax) { MathJax.typesetPromise(); }
-
 }
 
 function selectOption(selectedBtn, originalIdx, qData) {
     qData.userAnswerIndex = originalIdx;
-    
     document.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.remove('active-click');
         btn.classList.add('locked');
         btn.onclick = null;
     });
-
-    // Re-render choices to show correct/wrong colors
     loadQuestion(); 
 }
 
@@ -196,5 +257,4 @@ function evaluateRoundEnd() {
     }
 }
 
-// تشغيل الرئيسية عند التحميل
 window.onload = renderHome;

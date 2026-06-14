@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Physical Master</title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- مكتبات الاحتفال والرسوم البيانية -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app-container">
+        <!-- شاشة الرئيسية -->
         <div id="home-screen" class="screen active">
             <h1 style="color:#2196F3; font-size: 35px; margin-bottom: 30px; text-align: center;">Physical<br>Master</h1>
             <div id="lectures-list" style="width: 100%; max-width: 500px;"></div>
         </div>
 
+        <!-- شاشة المراجعة -->
         <div id="revision-screen" class="screen">
             <div class="rev-header">
                 <h2 id="rev-title" style="margin:0; color:#2196F3; font-size: 24px;">المراجعة</h2>
@@ -23,6 +26,7 @@
             <div id="mindmap-board" class="mindmap-board"></div>
         </div>
 
+        <!-- شاشة الكويز -->
         <div id="quiz-screen" class="screen">
             <div class="quiz-header">
                 <span class="close-btn" onclick="goHome()">✕</span>
@@ -40,6 +44,7 @@
             </div>
         </div>
 
+        <!-- شاشة الفوز -->
         <div id="win-overlay" class="overlay">
             <div class="dialog">
                 <h1 style="color: var(--btn-green); font-size: 45px; margin: 0 0 15px 0;">بطل! 🎉</h1>
@@ -51,6 +56,7 @@
 
     <button id="lang-fab" onclick="toggleLanguage()">EN</button>
 
+    <!-- ملفات البيانات (تأكد من وجودها) -->
     <script src="data_lec1.js"></script>
     <script src="data_lec2.js"></script>
     <script src="data_lec3.js"></script>
@@ -60,6 +66,8 @@
     <script src="data_lec7.js"></script>
     <script src="data_lec8.js"></script>
     <script src="main.js"></script>
+    
+    <!-- إعدادات MathJax للمعادلات الرياضية -->
     <script>
         window.MathJax = {
             tex: {
@@ -68,7 +76,6 @@
             }
         };
     </script>
-    
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
